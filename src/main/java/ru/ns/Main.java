@@ -1,40 +1,58 @@
 package ru.ns;
 
-import java.util.ArrayList;
-import java.util.List;
+import ru.ns.algorithm.Algorithm;
+import ru.ns.algorithm.Algorithms;
+import ru.ns.algorithm.PreparedAlgorithmFactory;
+
+import static ru.ns.util.Benchmark.measureFullAlgorithm;
+import static ru.ns.util.Benchmark.measureWithoutPrepAlgorithm;
+import static ru.ns.util.ResultPrinter.showResult;
 
 public class Main {
+    private static final long N = (long) Math.pow(2, 3);
+
     public static void main(String[] args) {
-        int n = 5;
-        List<Rectangle> rectangles = generateRectangles(n);
-        var algo = new SegmentTreeSolution(rectangles);
-        List<Pair<Integer, Integer>> points = generatePoints(n);
-        var res = algo.calcForPoints(points);
-        System.out.println(res);
+        testFullAlgorithms();
+        testWithoutPrepAlgorithms();
     }
 
-    private static List<Rectangle> generateRectangles(int n) {
-        var arr = new ArrayList<Rectangle>();
-        for (int i = 0; i < n; i++) {
-            arr.add(new Rectangle(Pair.of(10 * i, 10 * i), Pair.of(10 * (2 * n - i), 10 * (2 * n - i))));
-        }
-        return arr;
+    private static void testFullAlgorithms() {
+        System.out.printf("""
+                _________________ FULL ALGORITHM TESTING _________________
+                Info:
+                    Rectangles = %d
+                    Points = 1 2 4 8 .. n^2
+                
+                """, N);
+
+        testFullAlgorithm("BRUTE FORCE", Algorithms.BRUTE_FORCE);
+        testFullAlgorithm("MATRIX", Algorithms.MATRIX);
+        testFullAlgorithm("SEGMENT TREE", Algorithms.SEGMENT_TREE);
     }
 
-    private static List<Pair<Integer, Integer>> generatePoints(int n) {
-        var arr = new ArrayList<Pair<Integer, Integer>>();
-        int pX = 75254857;
-        int pY = 40509479;
-        for (int i = 0; i < n; i++) {
-            int first = hashPoint(i, pX, n);
-            int second = hashPoint(i, pY, n);
-            arr.add(Pair.of(first, second));
-        }
+    private static void testWithoutPrepAlgorithms() {
+        System.out.println("""
+                _________ WITH OUT PREPARATION ALGORITHM TESTING _________
+                Info:
+                    Points = 1
+                    Rectangles = 1 2 3 4 .. n
+                
+                """);
 
-        return arr;
+        testWithoutPrepAlgorithm("BRUTE FORCE", Algorithms::createPreparedBruteForceAlgorithm);
+        testWithoutPrepAlgorithm("MATRIX", Algorithms::createPreparedMatrixAlgorithm);
+        testWithoutPrepAlgorithm("SEGMENT TREE", Algorithms::createPreparedSegmentTreeAlgorithm);
     }
 
-    private static int hashPoint(int i, int p, int n) {
-        return (int) (Math.pow((i * p), 31) % (20 * n));
+    private static void testFullAlgorithm(String title, Algorithm algorithm) {
+        var result = measureFullAlgorithm(algorithm, N);
+
+        showResult(title, result.first(), result.second(), "Rectangles", "points");
+    }
+
+    private static void testWithoutPrepAlgorithm(String title, PreparedAlgorithmFactory preparedAlgorithmFactory) {
+        var result = measureWithoutPrepAlgorithm(preparedAlgorithmFactory, (long) Math.pow(N, 4));
+
+        showResult(title, result.first(), result.second(), "Points", "rectangles");
     }
 }
