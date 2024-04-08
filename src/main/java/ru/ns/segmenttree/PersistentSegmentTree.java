@@ -1,47 +1,50 @@
 package ru.ns.segmenttree;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class PersistentSegmentTree {
     public static final PersistentSegmentTree ZERO_TREE = new PersistentSegmentTree(new long[]{0});
 
     private SegmentTreeNode head;
-    private final List<SegmentTreeNode> states = new ArrayList<>();
-    private long currentStateIndex;
+    private List<SegmentTreeNode> states = new ArrayList<>();
+    private long x = -1;
 
     public PersistentSegmentTree(long[] values) {
         head = SegmentTreeNode.of(values);
-        states.add(head);
-        currentStateIndex = 0;
     }
 
-    public void toState(long index) {
-        if (states.size() <= index) {
-            throw new IndexOutOfBoundsException("No such state");
+    public void toState(int index) {
+        if (states.size() <= index || index < 0) {
+            head = ZERO_TREE.head;
+            return;
         }
 
-        currentStateIndex = index;
-        head = states.get((int) index);
+        head = states.get(index);
+        states.add(head);
     }
 
-    public long currentStateIndex() {
-        return states.size() - 1;
+    public int amountOfStates() {
+        return states.size();
     }
 
-    public long get(long index) {
+    public List<SegmentTreeNode> getStates() {
+        return Collections.unmodifiableList(states);
+    }
+
+    public long get(int index) {
         return head.get(index);
     }
 
-    public void addToSegment(long value, long l, long r) {
+    public void addToSegment(long value, int l, int r, long x) {
         var newState = head.addToSegment(value, l, r);
 
-        if (currentStateIndex + 1 < states.size()) {
-            states.subList((int) (currentStateIndex + 1), states.size()).clear();
+        if (this.x != x) {
+            states.add(newState);
+            this.x = x;
         }
 
-        states.add(newState);
         head = newState;
-        currentStateIndex++;
     }
 }

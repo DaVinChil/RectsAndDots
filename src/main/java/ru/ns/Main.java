@@ -1,15 +1,14 @@
 package ru.ns;
 
-import ru.ns.algorithm.Algorithm;
-import ru.ns.algorithm.Algorithms;
-import ru.ns.algorithm.PreparedAlgorithmFactory;
+import ru.ns.algorithm.*;
+import ru.ns.util.Generator;
 
 import static ru.ns.util.Benchmark.measureFullAlgorithm;
 import static ru.ns.util.Benchmark.measureWithoutPrepAlgorithm;
 import static ru.ns.util.ResultPrinter.showResult;
 
 public class Main {
-    private static final long N = (long) Math.pow(2, 3);
+    private static final long N = (long) Math.pow(2, 7);
 
     public static void main(String[] args) {
         testFullAlgorithms();
@@ -51,7 +50,7 @@ public class Main {
     }
 
     private static void testWithoutPrepAlgorithm(String title, PreparedAlgorithmFactory preparedAlgorithmFactory) {
-        var result = measureWithoutPrepAlgorithm(preparedAlgorithmFactory, (long) Math.pow(N, 4));
+        var result = measureWithoutPrepAlgorithm(preparedAlgorithmFactory, (long) Math.pow(N, 3));
 
         showResult(title, result.first(), result.second(), "Points", "rectangles");
     }

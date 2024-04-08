@@ -66,14 +66,7 @@ public class SegmentTreeNode {
     }
 
     private SegmentTreeNode copyWith(long newValue, long newModifier) {
-        return new SegmentTreeNode(
-                leftBound,
-                rightBound,
-                newValue,
-                left,
-                right,
-                newModifier
-        );
+        return new SegmentTreeNode(leftBound, rightBound, newValue, left, right, newModifier);
     }
 
     public long get(long index) {
