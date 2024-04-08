@@ -8,7 +8,7 @@ import static ru.ns.util.Benchmark.measureWithoutPrepAlgorithm;
 import static ru.ns.util.ResultPrinter.showResult;
 
 public class Main {
-    private static final long N = (long) Math.pow(2, 7);
+    private static final long N = (long) Math.pow(2, 5);
 
     public static void main(String[] args) {
         testFullAlgorithms();

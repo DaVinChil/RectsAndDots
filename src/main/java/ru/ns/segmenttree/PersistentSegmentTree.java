@@ -8,7 +8,7 @@ public class PersistentSegmentTree {
     public static final PersistentSegmentTree ZERO_TREE = new PersistentSegmentTree(new long[]{0});
 
     private SegmentTreeNode head;
-    private List<SegmentTreeNode> states = new ArrayList<>();
+    private final List<SegmentTreeNode> states = new ArrayList<>();
     private long x = -1;
 
     public PersistentSegmentTree(long[] values) {
@@ -18,19 +18,10 @@ public class PersistentSegmentTree {
     public void toState(int index) {
         if (states.size() <= index || index < 0) {
             head = ZERO_TREE.head;
-            return;
+        } else if (index < states.size() - 1) {
+            head = states.get(index);
+            states.add(head);
         }
-
-        head = states.get(index);
-        states.add(head);
-    }
-
-    public int amountOfStates() {
-        return states.size();
-    }
-
-    public List<SegmentTreeNode> getStates() {
-        return Collections.unmodifiableList(states);
     }
 
     public long get(int index) {
@@ -39,12 +30,11 @@ public class PersistentSegmentTree {
 
     public void addToSegment(long value, int l, int r, long x) {
         var newState = head.addToSegment(value, l, r);
+        head = newState;
 
         if (this.x != x) {
             states.add(newState);
             this.x = x;
         }
-
-        head = newState;
     }
 }

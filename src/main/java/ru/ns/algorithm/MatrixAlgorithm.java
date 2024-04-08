@@ -18,63 +18,6 @@ public class MatrixAlgorithm {
         prepareMatrix(rectangles);
     }
 
-    public List<Long> calculateForPoints(List<Pair<Long, Long>> points) {
-        return points.stream()
-                .map(this::calculateForPoint)
-                .toList();
-    }
-
-    public long calculateForPoint(Pair<Long, Long> point) {
-        long xIndex = xIndex(point.first());
-        long yIndex = yIndex(point.second());
-
-        if (xIndex == -1 || yIndex == -1) {
-            return 0;
-        }
-
-        return matrix[(int) xIndex][(int) yIndex];
-    }
-
-    private void prepareMatrix(List<Rectangle> rectangles) {
-        for(var rectangle : rectangles) {
-            applyRectangle(rectangle.leftBottom(), rectangle.rightTop());
-        }
-    }
-
-    private void applyRectangle(Pair<Long, Long> leftBottom, Pair<Long, Long> rightTop) {
-        matrix = new long[differentX.size() - 1][differentY.size() - 1];
-
-        long minXInd = xIndex(leftBottom.first());
-        long maxXInd = xIndex(rightTop.first());
-        long minYInd = yIndex(leftBottom.second());
-        long maxYInd = yIndex(rightTop.second());
-
-        for (long y = minYInd; y < maxYInd; y++) {
-            for(long x = minXInd; x < maxXInd; x++) {
-                matrix[(int) x][(int) y]++;
-            }
-        }
-    }
-
-    private long yIndex(long y) {
-        return binSearch(differentY, y);
-    }
-
-    private long xIndex(long x) {
-        return binSearch(differentX, x);
-    }
-
-    private long binSearch(List<Long> list, long target) {
-        long index = Collections.binarySearch(list, target);
-        if (index >= 0) {
-            return index;
-        } else if (index == -1 || -index == list.size() + 1) {
-            return -1;
-        }
-
-        return -(index + 2);
-    }
-
     private void prepareDifferentY(List<Rectangle> rectangles) {
         differentY = rectangles.stream()
                 .flatMap(r -> Stream.of(r.leftBottom().second(), r.rightTop().second()))
@@ -89,5 +32,61 @@ public class MatrixAlgorithm {
                 .distinct()
                 .sorted()
                 .toList();
+    }
+
+    public long calculateForPoint(Pair<Long, Long> point) {
+        int xIndex = xIndex(point.first());
+        int yIndex = yIndex(point.second());
+
+        if (xIndex == -1 || yIndex == -1) {
+            return 0;
+        }
+
+        return matrix[xIndex][yIndex];
+    }
+
+    public List<Long> calculateForPoints(List<Pair<Long, Long>> points) {
+        return points.stream()
+                .map(this::calculateForPoint)
+                .toList();
+    }
+
+    private void prepareMatrix(List<Rectangle> rectangles) {
+        matrix = new long[differentX.size() - 1][differentY.size() - 1];
+        for(var rectangle : rectangles) {
+            applyRectangle(rectangle.leftBottom(), rectangle.rightTop());
+        }
+    }
+
+    private void applyRectangle(Pair<Long, Long> leftBottom, Pair<Long, Long> rightTop) {
+        int minXInd = xIndex(leftBottom.first());
+        int maxXInd = xIndex(rightTop.first());
+        int minYInd = yIndex(leftBottom.second());
+        int maxYInd = yIndex(rightTop.second());
+
+        for (int y = minYInd; y < maxYInd; y++) {
+            for(int x = minXInd; x < maxXInd; x++) {
+                matrix[x][y]++;
+            }
+        }
+    }
+
+    private int yIndex(long y) {
+        return binSearch(differentY, y);
+    }
+
+    private int xIndex(long x) {
+        return binSearch(differentX, x);
+    }
+
+    private int binSearch(List<Long> list, long target) {
+        int index = Collections.binarySearch(list, target);
+        if (index >= 0) {
+            return index;
+        } else if (index == -1 || -index == list.size() + 1) {
+            return -1;
+        }
+
+        return -(index + 2);
     }
 }

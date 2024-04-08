@@ -5,25 +5,21 @@ import ru.ns.model.Rectangle;
 import ru.ns.segmenttree.PersistentSegmentTree;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Stream;
-
-import static java.util.Comparator.comparingLong;
 
 public class SegmentTreeAlgorithm {
 
     private List<Change> changes;
-    private int lastAddedChangeIndex = -1;
     private List<Long> differentY;
     private List<Long> differentX;
-    private final PersistentSegmentTree tree;
+    private PersistentSegmentTree tree;
 
     public SegmentTreeAlgorithm(List<Rectangle> rectangles) {
         prepareDifferentY(rectangles);
         prepareDifferentX(rectangles);
         prepareChanges(rectangles);
-        tree = new PersistentSegmentTree(new long[differentY.size() - 1]);
+        prepareTree();
     }
 
     private void prepareDifferentY(List<Rectangle> rectangles) {
@@ -45,52 +41,19 @@ public class SegmentTreeAlgorithm {
     private void prepareChanges(List<Rectangle> rectangles) {
         changes = rectangles.stream()
                 .flatMap(r -> {
-                    var yRange = new Pair<>(r.leftBottom().second(), r.rightTop().second());
-                    return Stream.of(new Change(r.leftBottom().first(), yRange, 1),
-                            new Change(r.rightTop().first(), yRange, -1));
+                    var yRange = r.getYRange();
+                    long startX = r.leftBottom().first();
+                    long endX = r.rightTop().first();
+
+                    return Stream.of(new Change(startX, yRange, 1), new Change(endX, yRange, -1));
                 })
-                .sorted((a, b) -> {
-                    if (a.x != b.x) return Math.toIntExact(a.x - b.x);
-                    return Math.toIntExact(a.change);
-                })
+                .sorted()
                 .toList();
     }
 
-    public List<Long> calculateForPoints(List<Pair<Long, Long>> points) {
-        var map = new HashMap<Pair<Long, Long>, Long>();
-        points.stream().sorted(comparingLong(Pair::first)).forEach(p -> map.put(p, calculateForPoint(p)));
-        return points.stream().map(map::get).toList();
-    }
-
-    public long calculateForPoint(Pair<Long, Long> point) {
-        toStateByX(point.first());
-        int index = yIndex(point.second());
-        return tree.get(index);
-    }
-
-    private void toStateByX(long x) {
-        int index = xIndex(x);
-
-        if (index >= amountOfProcessedX() - 1) {
-            prepareTreeUntil(x);
-        } else {
-            tree.toState(index);
-        }
-    }
-
-    private void prepareTreeUntil(long x) {
-        if (amountOfProcessedX() == differentX.size()) return;
-
-        for (int i = lastAddedChangeIndex + 1;
-             i < changes.size() && changes.get(i).x <= x;
-             lastAddedChangeIndex = i, i++
-        ) {
-            applyChange(changes.get(i));
-        }
-    }
-
-    private int amountOfProcessedX() {
-        return tree.amountOfStates();
+    private void prepareTree() {
+        tree = new PersistentSegmentTree(new long[differentY.size() - 1]);
+        changes.forEach(this::applyChange);
     }
 
     private void applyChange(Change change) {
@@ -101,22 +64,32 @@ public class SegmentTreeAlgorithm {
         return binSearch(differentY, y);
     }
 
+    public List<Long> calculateForPoints(List<Pair<Long, Long>> points) {
+        return points.stream().map(this::calculateForPoint).toList();
+    }
+
+    public long calculateForPoint(Pair<Long, Long> point) {
+        toStateByX(point.first());
+        int yIndex = yIndex(point.second());
+        return tree.get(yIndex);
+    }
+
+    private void toStateByX(long x) {
+        tree.toState(xIndex(x));
+    }
+
     public int xIndex(long x) {
         return binSearch(differentX, x);
     }
 
     private int binSearch(List<Long> list, long target) {
         int index = Collections.binarySearch(list, target);
-        if (index >= 0) {
-            return index;
-        } else if (index == -1 || -index == list.size() + 1) {
-            return -1;
-        }
 
+        if (index >= 0) return index;
         return -(index + 2);
     }
 
-    private static class Change {
+    private static class Change implements Comparable<Change> {
         long x;
         Pair<Long, Long> yRange;
         long change;
@@ -125,6 +98,11 @@ public class SegmentTreeAlgorithm {
             this.x = x;
             this.yRange = yRange;
             this.change = change;
+        }
+
+        @Override
+        public int compareTo(Change o) {
+            return x - o.x < 0 ? -1 : (x == o.x ? 0 : 1);
         }
     }
 }

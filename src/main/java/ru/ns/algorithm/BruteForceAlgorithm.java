@@ -19,8 +19,10 @@ public class BruteForceAlgorithm {
     }
 
     public long calculateForPoint(Pair<Long, Long> point) {
-        return rectangles.stream()
-                .filter(r -> r.isPointInside(point))
-                .count();
+        long count = 0;
+        for (var rect : rectangles) {
+            if (rect.isPointInside(point)) count++;
+        }
+        return count;
     }
 }

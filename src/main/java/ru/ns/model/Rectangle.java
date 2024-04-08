@@ -13,4 +13,8 @@ public record Rectangle(
         return (rMinX <= point.first() && rMaxX > point.first())
                 && (rMinY <= point.second() && rMaxY > point.second());
     }
+
+    public Pair<Long, Long> getYRange() {
+        return Pair.of(leftBottom.second(), rightTop.second());
+    }
 }
