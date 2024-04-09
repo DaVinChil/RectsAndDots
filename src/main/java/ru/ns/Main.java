@@ -1,14 +1,14 @@
 package ru.ns;
 
-import ru.ns.algorithm.*;
-import ru.ns.util.Generator;
+import ru.ns.algorithm.Algorithm;
+import ru.ns.algorithm.Algorithms;
 
 import static ru.ns.util.Benchmark.measureFullAlgorithm;
 import static ru.ns.util.Benchmark.measureWithoutPrepAlgorithm;
 import static ru.ns.util.ResultPrinter.showResult;
 
 public class Main {
-    private static final long N = (long) Math.pow(2, 5);
+    private static final long N = (long) Math.pow(2, 10);
 
     public static void main(String[] args) {
         testFullAlgorithms();
@@ -38,20 +38,20 @@ public class Main {
                 
                 """);
 
-        testWithoutPrepAlgorithm("BRUTE FORCE", Algorithms::createPreparedBruteForceAlgorithm);
-        testWithoutPrepAlgorithm("MATRIX", Algorithms::createPreparedMatrixAlgorithm);
-        testWithoutPrepAlgorithm("SEGMENT TREE", Algorithms::createPreparedSegmentTreeAlgorithm);
+        testWithoutPrepAlgorithm("BRUTE FORCE", Algorithms.BRUTE_FORCE);
+        testWithoutPrepAlgorithm("MATRIX", Algorithms.MATRIX);
+        testWithoutPrepAlgorithm("SEGMENT TREE", Algorithms.SEGMENT_TREE);
     }
 
     private static void testFullAlgorithm(String title, Algorithm algorithm) {
         var result = measureFullAlgorithm(algorithm, N);
 
-        showResult(title, result.first(), result.second(), "Rectangles", "points");
+        showResult(title, result, "points");
     }
 
-    private static void testWithoutPrepAlgorithm(String title, PreparedAlgorithmFactory preparedAlgorithmFactory) {
-        var result = measureWithoutPrepAlgorithm(preparedAlgorithmFactory, (long) Math.pow(N, 3));
+    private static void testWithoutPrepAlgorithm(String title, Algorithm algorithm) {
+        var result = measureWithoutPrepAlgorithm(algorithm, N);
 
-        showResult(title, result.first(), result.second(), "Points", "rectangles");
+        showResult(title, result, "rectangles");
     }
 }

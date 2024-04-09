@@ -1,28 +1,25 @@
 package ru.ns.util;
 
 
+import ru.ns.model.Pair;
+
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class ResultPrinter {
     private final String title;
-    private final List<Long> times;
-    private final List<Long> inputs;
-    private final String constantType;
-    private final String variableType;
+    private final List<Pair<Long, Long>> inputResults;
+    private final String parameterType;
     private final List<Integer> maxWidths;
 
-    ResultPrinter(String title, List<Long> times, List<Long> inputs, String constantType, String variableType) {
+    ResultPrinter(String title, List<Pair<Long, Long>> inputResults, String parameterType) {
         this.title = title;
-        this.times = times;
-        this.inputs = inputs;
-        this.constantType = constantType;
-        this.variableType = variableType;
+        this.inputResults = inputResults;
+        this.parameterType = parameterType;
         this.maxWidths = calculateMaxWidths();
     }
 
-    public static void showResult(String title, List<Long> times, List<Long> inputs, String constantType, String variableType) {
-        new ResultPrinter(title, times, inputs, constantType, variableType).showResult();
+    public static void showResult(String title, List<Pair<Long, Long>> inputResults, String parameterType) {
+        new ResultPrinter(title, inputResults, parameterType).showResult();
     }
 
     private void showResult() {
@@ -61,17 +58,17 @@ public class ResultPrinter {
 
     private void printTimes() {
         System.out.print ("│ time (nanos) │");
-        for (int i = 0; i < times.size(); i++) {
-            printInCenter(maxWidths.get(i), String.valueOf(times.get(i)));
+        for (int i = 0; i < inputResults.size(); i++) {
+            printInCenter(maxWidths.get(i), String.valueOf(inputResults.get(i).second()));
         }
         System.out.println();
     }
 
     private void printInputs() {
         System.out.print("│");
-        printInCenter(12, variableType);
-        for (int i = 0; i < inputs.size(); i++) {
-            printInCenter(maxWidths.get(i), String.valueOf(inputs.get(i)));
+        printInCenter(12, parameterType);
+        for (int i = 0; i < inputResults.size(); i++) {
+            printInCenter(maxWidths.get(i), String.valueOf(inputResults.get(i).first()));
         }
         System.out.println();
     }
@@ -80,21 +77,17 @@ public class ResultPrinter {
         int width = maxWidth - value.length();
 
         for (int k = 0; k < (int) Math.ceil(width / 2.0) + 1; k++) System.out.print(" ");
-
         System.out.print(value);
-
         for (int k = 0; k < width / 2 + 1; k++) System.out.print(" ");
 
         System.out.print("│");
     }
 
     private List<Integer> calculateMaxWidths() {
-        AtomicLong m = new AtomicLong(2);
-        return times.stream()
-                .map(t -> {
-                    String strTime = String.valueOf(t);
-                    String strAmountOfPoints = String.valueOf(m.get());
-                    m.updateAndGet(v -> v * 2);
+        return inputResults.stream()
+                .map(pair -> {
+                    String strTime = String.valueOf(pair.second());
+                    String strAmountOfPoints = String.valueOf(pair.first());
 
                     return Math.max(strTime.length(), strAmountOfPoints.length());
                 })

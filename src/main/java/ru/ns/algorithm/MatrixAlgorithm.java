@@ -1,26 +1,34 @@
 package ru.ns.algorithm;
 
-import ru.ns.model.Pair;
+import ru.ns.model.Point;
 import ru.ns.model.Rectangle;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class MatrixAlgorithm {
+public class MatrixAlgorithm implements Algorithm {
     private List<Long> differentX;
     private List<Long> differentY;
     private long[][] matrix;
 
-    public MatrixAlgorithm(List<Rectangle> rectangles) {
+    @Override
+    public void prepare(List<Rectangle> rectangles) {
         prepareDifferentY(rectangles);
         prepareDifferentX(rectangles);
         prepareMatrix(rectangles);
     }
 
+    @Override
+    public List<Long> solve(List<Point> points) {
+        return points.stream()
+                .map(this::calculateForPoint)
+                .toList();
+    }
+
     private void prepareDifferentY(List<Rectangle> rectangles) {
         differentY = rectangles.stream()
-                .flatMap(r -> Stream.of(r.leftBottom().second(), r.rightTop().second()))
+                .flatMap(r -> Stream.of(r.leftBottom().y(), r.rightTop().y()))
                 .distinct()
                 .sorted()
                 .toList();
@@ -28,41 +36,37 @@ public class MatrixAlgorithm {
 
     private void prepareDifferentX(List<Rectangle> rectangles) {
         differentX = rectangles.stream()
-                .flatMap(r -> Stream.of(r.leftBottom().first(), r.rightTop().first()))
+                .flatMap(r -> Stream.of(r.leftBottom().x(), r.rightTop().x()))
                 .distinct()
                 .sorted()
                 .toList();
     }
 
-    public long calculateForPoint(Pair<Long, Long> point) {
-        int xIndex = xIndex(point.first());
-        int yIndex = yIndex(point.second());
+    private long calculateForPoint(Point point) {
+        int xIndex = xIndex(point.x());
+        int yIndex = yIndex(point.y());
 
-        if (xIndex == -1 || yIndex == -1) {
-            return 0;
-        }
-
-        return matrix[xIndex][yIndex];
+        return getByIndexes(xIndex, yIndex);
     }
 
-    public List<Long> calculateForPoints(List<Pair<Long, Long>> points) {
-        return points.stream()
-                .map(this::calculateForPoint)
-                .toList();
+    private long getByIndexes(int i, int j) {
+        try {
+            return matrix[i][j];
+        } catch (Exception e) {
+            return 0;
+        }
     }
 
     private void prepareMatrix(List<Rectangle> rectangles) {
         matrix = new long[differentX.size() - 1][differentY.size() - 1];
-        for(var rectangle : rectangles) {
-            applyRectangle(rectangle.leftBottom(), rectangle.rightTop());
-        }
+        rectangles.forEach(this::applyRectangle);
     }
 
-    private void applyRectangle(Pair<Long, Long> leftBottom, Pair<Long, Long> rightTop) {
-        int minXInd = xIndex(leftBottom.first());
-        int maxXInd = xIndex(rightTop.first());
-        int minYInd = yIndex(leftBottom.second());
-        int maxYInd = yIndex(rightTop.second());
+    private void applyRectangle(Rectangle r) {
+        int minXInd = xIndex(r.leftBottom().x());
+        int maxXInd = xIndex(r.rightTop().x());
+        int minYInd = yIndex(r.leftBottom().y());
+        int maxYInd = yIndex(r.rightTop().y());
 
         for (int y = minYInd; y < maxYInd; y++) {
             for(int x = minXInd; x < maxXInd; x++) {
@@ -83,8 +87,6 @@ public class MatrixAlgorithm {
         int index = Collections.binarySearch(list, target);
         if (index >= 0) {
             return index;
-        } else if (index == -1 || -index == list.size() + 1) {
-            return -1;
         }
 
         return -(index + 2);

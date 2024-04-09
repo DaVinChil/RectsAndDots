@@ -1,54 +1,55 @@
 package ru.ns.util;
 
 import ru.ns.algorithm.Algorithm;
-import ru.ns.algorithm.PreparedAlgorithmFactory;
 import ru.ns.model.Pair;
+import ru.ns.model.Point;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Benchmark {
 
-    public static Pair<List<Long>, List<Long>> measureWithoutPrepAlgorithm(PreparedAlgorithmFactory preparedAlgorithmFactory, long maxAmountOfRectangles) {
-        var times = new ArrayList<Long>();
-        var inputs = new ArrayList<Long>();
+    public static List<Pair<Long, Long>> measureWithoutPrepAlgorithm(Algorithm algorithm, long maxAmountOfRectangles) {
+        var result = new ArrayList<Pair<Long, Long>>();
 
-        for (long m = 1; m <= maxAmountOfRectangles; m *= 2) {
-            inputs.add(m);
-            var point = new Pair<>(m / 2, m / 2);
+        for (long m = 2; m <= maxAmountOfRectangles; m *= 2) {
+            var point = Point.of(m / 2, m / 2);
             var rectangles = Generator.generateRectangles(m);
-            var algorithm = preparedAlgorithmFactory.createAlgorithm(rectangles);
 
-            times.add(measureAverageTimeExecution(() -> algorithm.accept(point)));
+            algorithm.prepare(rectangles);
+            long time = measureAverageTimeExecution(() -> algorithm.solve(List.of(point)), 10000);
+
+            result.add(Pair.of(m, time));
         }
 
-        return Pair.of(times, inputs);
+        return result;
     }
 
-    public static Pair<List<Long>, List<Long>> measureFullAlgorithm(Algorithm algorithm, long amountOfRectangles) {
-        var times = new ArrayList<Long>();
-        var inputs = new ArrayList<Long>();
+    public static List<Pair<Long, Long>> measureFullAlgorithm(Algorithm algorithm, long amountOfRectangles) {
+        var result = new ArrayList<Pair<Long, Long>>();
 
         var rectangles = Generator.generateRectangles(amountOfRectangles);
-
-        for (long m = 2; m <= (int) Math.pow(amountOfRectangles, 2); m *= 2) {
+        for (long m = 2; m <= amountOfRectangles * amountOfRectangles; m *= 2) {
             var points = Generator.generatePoints(m);
-            inputs.add(m);
 
-            times.add(measureAverageTimeExecution(() -> algorithm.solve(rectangles, points)));
+            long time = measureAverageTimeExecution(() -> {
+                algorithm.prepare(rectangles);
+                algorithm.solve(points);
+            }, 1);
+
+            result.add(Pair.of(m, time));
         }
 
-        return Pair.of(times, inputs);
+        return result;
     }
 
-    private static long measureAverageTimeExecution(Runnable exec) {
-        for (int i = 0; i < 10; i++) exec.run();
+    private static long measureAverageTimeExecution(Runnable exec, int repeatTimes) {
+        for (int i = 0; i < 10 && repeatTimes > 1; i++) exec.run();
 
         double res = 0;
-        int times = 1000;
 
-        for (int i = 0; i < times; i++) {
-            res += ((double) measureTimeExecution(exec)) / times;
+        for (int i = 0; i < repeatTimes; i++) {
+            res += ((double) measureTimeExecution(exec)) / repeatTimes;
         }
 
         return (long) res;

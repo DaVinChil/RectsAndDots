@@ -1,6 +1,7 @@
 package ru.ns.algorithm;
 
 import ru.ns.model.Pair;
+import ru.ns.model.Point;
 import ru.ns.model.Rectangle;
 import ru.ns.segmenttree.PersistentSegmentTree;
 
@@ -8,14 +9,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class SegmentTreeAlgorithm {
+public class SegmentTreeAlgorithm implements Algorithm {
 
     private List<Change> changes;
     private List<Long> differentY;
     private List<Long> differentX;
     private PersistentSegmentTree tree;
 
-    public SegmentTreeAlgorithm(List<Rectangle> rectangles) {
+    @Override
+    public void prepare(List<Rectangle> rectangles) {
         prepareDifferentY(rectangles);
         prepareDifferentX(rectangles);
         prepareChanges(rectangles);
@@ -24,7 +26,7 @@ public class SegmentTreeAlgorithm {
 
     private void prepareDifferentY(List<Rectangle> rectangles) {
         differentY = rectangles.stream()
-                .flatMap(r -> Stream.of(r.leftBottom().second(), r.rightTop().second()))
+                .flatMap(r -> Stream.of(r.leftBottom().y(), r.rightTop().y()))
                 .distinct()
                 .sorted()
                 .toList();
@@ -32,7 +34,7 @@ public class SegmentTreeAlgorithm {
 
     private void prepareDifferentX(List<Rectangle> rectangles) {
         differentX = rectangles.stream()
-                .flatMap(r -> Stream.of(r.leftBottom().first(), r.rightTop().first()))
+                .flatMap(r -> Stream.of(r.leftBottom().x(), r.rightTop().x()))
                 .distinct()
                 .sorted()
                 .toList();
@@ -42,8 +44,8 @@ public class SegmentTreeAlgorithm {
         changes = rectangles.stream()
                 .flatMap(r -> {
                     var yRange = r.getYRange();
-                    long startX = r.leftBottom().first();
-                    long endX = r.rightTop().first();
+                    long startX = r.leftBottom().x();
+                    long endX = r.rightTop().x();
 
                     return Stream.of(new Change(startX, yRange, 1), new Change(endX, yRange, -1));
                 })
@@ -60,17 +62,18 @@ public class SegmentTreeAlgorithm {
         tree.addToSegment(change.change, yIndex(change.yRange.first()), yIndex(change.yRange.second()), change.x);
     }
 
-    public int yIndex(long y) {
-        return binSearch(differentY, y);
+    public int xIndex(long x) {
+        return binSearch(differentX, x);
     }
 
-    public List<Long> calculateForPoints(List<Pair<Long, Long>> points) {
+    @Override
+    public List<Long> solve(List<Point> points) {
         return points.stream().map(this::calculateForPoint).toList();
     }
 
-    public long calculateForPoint(Pair<Long, Long> point) {
-        toStateByX(point.first());
-        int yIndex = yIndex(point.second());
+    public long calculateForPoint(Point point) {
+        toStateByX(point.x());
+        int yIndex = yIndex(point.y());
         return tree.get(yIndex);
     }
 
@@ -78,8 +81,8 @@ public class SegmentTreeAlgorithm {
         tree.toState(xIndex(x));
     }
 
-    public int xIndex(long x) {
-        return binSearch(differentX, x);
+    public int yIndex(long y) {
+        return binSearch(differentY, y);
     }
 
     private int binSearch(List<Long> list, long target) {

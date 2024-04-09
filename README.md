@@ -22,7 +22,7 @@ Brute force algorithm basically runs through all given rectangles for each point
 - *Querying Time Complexity = O(n)*
 - *Overall Time Complexity = O(nm)*
 
-*n - amount of rectangles*
+*n - amount of rectangles,*
 *m - amount of points*
 
 ---------
@@ -36,7 +36,7 @@ Second algorithm constructing a matrix where each cell represents a number of re
 - *Querying Time Complexity = O(logn)*
 - *Overall Time Complexity = O(n^3 + mlogn)*
 
-*n - amount of rectangles*
+*n - amount of rectangles,*
 *m - amount of points*
 
 ---------
@@ -50,5 +50,17 @@ by one using a sweep line moving horizontally across the plane.
 - *Querying Time Complexity = O(logn)*
 - *Overall Time Complexity = O(nlogn + mlogn)*
 
-*n - amount of rectangles*
+*n - amount of rectangles,*
 *m - amount of points*
+
+## Testing
+
+----------
+
+For testing generating *N* amount of rectangles with corners in *[i * 10, i * 10]* and *[(N - i) * 10, (N - i) * 10]*,
+and points from *2* to *N^2* pieces. First approach is testing overall execution time, and second is testing only 
+querying time execution without preparation.
+
+### First Approach
+
+### Second Approach
