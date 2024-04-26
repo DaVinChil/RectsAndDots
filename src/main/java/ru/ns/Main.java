@@ -4,54 +4,53 @@ import ru.ns.algorithm.Algorithm;
 import ru.ns.algorithm.Algorithms;
 
 import static ru.ns.util.Benchmark.measureFullAlgorithm;
-import static ru.ns.util.Benchmark.measureWithoutPrepAlgorithm;
 import static ru.ns.util.ResultPrinter.showResult;
 
 public class Main {
-    private static final long N = (long) Math.pow(2, 10);
+    private static long N = (long) Math.pow(2, 7);
 
     public static void main(String[] args) {
-        testFullAlgorithms();
-        testWithoutPrepAlgorithms();
+        testUntilN2();
+        testUntilN3();
     }
 
-    private static void testFullAlgorithms() {
+    private static void testUntilN2() {
         System.out.printf("""
-                _________________ FULL ALGORITHM TESTING _________________
+                _________________ APPROACH 1 _________________
                 Info:
                     Rectangles = %d
                     Points = 1 2 4 8 .. n^2
                 
                 """, N);
 
-        testFullAlgorithm("BRUTE FORCE", Algorithms.BRUTE_FORCE);
-        testFullAlgorithm("MATRIX", Algorithms.MATRIX);
-        testFullAlgorithm("SEGMENT TREE", Algorithms.SEGMENT_TREE);
+        testUntilN2("BRUTE FORCE", Algorithms.BRUTE_FORCE);
+        testUntilN2("MATRIX", Algorithms.MATRIX);
+        testUntilN2("SEGMENT TREE", Algorithms.SEGMENT_TREE);
     }
 
-    private static void testWithoutPrepAlgorithms() {
+    private static void testUntilN3() {
         System.out.println("""
-                _________ WITH OUT PREPARATION ALGORITHM TESTING _________
+                _________________ APPROACH 2 _________________
                 Info:
-                    Points = 1
-                    Rectangles = 1 2 3 4 .. n
+                    Rectangles = %d
+                    Points = 1 2 4 8 .. n^3
                 
                 """);
 
-        testWithoutPrepAlgorithm("BRUTE FORCE", Algorithms.BRUTE_FORCE);
-        testWithoutPrepAlgorithm("MATRIX", Algorithms.MATRIX);
-        testWithoutPrepAlgorithm("SEGMENT TREE", Algorithms.SEGMENT_TREE);
+        testUntilN3("BRUTE FORCE", Algorithms.BRUTE_FORCE);
+        testUntilN3("MATRIX", Algorithms.MATRIX);
+        testUntilN3("SEGMENT TREE", Algorithms.SEGMENT_TREE);
     }
 
-    private static void testFullAlgorithm(String title, Algorithm algorithm) {
-        var result = measureFullAlgorithm(algorithm, N);
+    private static void testUntilN2(String title, Algorithm algorithm) {
+        var result = measureFullAlgorithm(algorithm, N, (long) Math.pow(N, 2));
 
         showResult(title, result, "points");
     }
 
-    private static void testWithoutPrepAlgorithm(String title, Algorithm algorithm) {
-        var result = measureWithoutPrepAlgorithm(algorithm, N);
+    private static void testUntilN3(String title, Algorithm algorithm) {
+        var result = measureFullAlgorithm(algorithm, N, (long) Math.pow(N, 3));
 
-        showResult(title, result, "rectangles");
+        showResult(title, result, "points");
     }
 }

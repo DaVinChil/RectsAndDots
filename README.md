@@ -57,10 +57,29 @@ by one using a sweep line moving horizontally across the plane.
 
 ----------
 
-For testing generating *N* amount of rectangles with corners in *[i * 10, i * 10]* and *[(N - i) * 10, (N - i) * 10]*,
-and points from *2* to *N^2* pieces. First approach is testing overall execution time, and second is testing only 
-querying time execution without preparation.
-
 ### First Approach
+For testing, generate *N* number of rectangles with corners in *[i * 10, i * 10]* and *[(N - i) * 10, (N - i) * 10]*,
+and points from *2* to *N^2* pieces.
+
+![first](src/main/resources/until_n_2.png)
+
+As we can see, when the number of points less than *N^2* sweep line algorithm is much preferable.
+When brute force is faster than matrix approach, yet its increasing tempo is quite high that will make it 
+worse even than matrix.
+
+------------
 
 ### Second Approach
+
+In the second approach generating same *N* rectangles, but in this case, with points coming up to *N^3* pieces.
+
+![second](src/main/resources/until_n_3.png)
+
+Brute force obviously appears to be highly time-consuming. But in the case of matrix and tree-based algorithms, things 
+are getting tricky. Meanwhile, on the paper they should be equal, sweep line algorithm requires more time for execution.
+Most probably this is happening due to traversing the tree which is a more complex algorithm than binary search.
+
+### How to run
+```cmd
+/.mvnw compile -q exec:java
+```

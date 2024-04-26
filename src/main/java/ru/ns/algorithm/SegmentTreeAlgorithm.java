@@ -5,6 +5,7 @@ import ru.ns.model.Point;
 import ru.ns.model.Rectangle;
 import ru.ns.segmenttree.PersistentSegmentTree;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;

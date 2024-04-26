@@ -23,7 +23,7 @@ public class ResultPrinter {
     }
 
     private void showResult() {
-        System.out.printf("─────────── %s%n", title);
+        System.out.printf("----------- %s%n", title);
         printCeil();
         printTimes();
         printMiddle();
@@ -32,32 +32,32 @@ public class ResultPrinter {
     }
 
     private void printBottom() {
-        System.out.print("└──────────────");
+        System.out.print("---------------");
         for (int size : maxWidths) {
-            System.out.print("┴");
+            System.out.print("-");
             for (int i = 0; i < size + 2; i++) {
-                System.out.print("─");
+                System.out.print("-");
             }
         }
-        System.out.println("┘\n");
+        System.out.println("-\n");
     }
 
     private void printMiddle() {
-        System.out.print("├──────────────");
+        System.out.print("---------------");
         for (long width : maxWidths) {
-            System.out.print("┼─");
+            System.out.print("--");
             for (int i = 0; i < width; i++) {
-                System.out.print("─");
+                System.out.print("-");
             }
-            System.out.print("─");
+            System.out.print("-");
         }
 
-        System.out.print("┤");
+        System.out.print("-");
         System.out.println();
     }
 
     private void printTimes() {
-        System.out.print ("│ time (nanos) │");
+        System.out.print ("| time (nanos) |");
         for (int i = 0; i < inputResults.size(); i++) {
             printInCenter(maxWidths.get(i), String.valueOf(inputResults.get(i).second()));
         }
@@ -65,7 +65,7 @@ public class ResultPrinter {
     }
 
     private void printInputs() {
-        System.out.print("│");
+        System.out.print("|");
         printInCenter(12, parameterType);
         for (int i = 0; i < inputResults.size(); i++) {
             printInCenter(maxWidths.get(i), String.valueOf(inputResults.get(i).first()));
@@ -80,7 +80,7 @@ public class ResultPrinter {
         System.out.print(value);
         for (int k = 0; k < width / 2 + 1; k++) System.out.print(" ");
 
-        System.out.print("│");
+        System.out.print("|");
     }
 
     private List<Integer> calculateMaxWidths() {
@@ -95,13 +95,13 @@ public class ResultPrinter {
     }
 
     private void printCeil() {
-        System.out.print("┌──────────────");
+        System.out.print("---------------");
         for (int size : maxWidths) {
-            System.out.print("┬");
+            System.out.print("-");
             for (int i = 0; i < size + 2; i++) {
-                System.out.print("─");
+                System.out.print("-");
             }
         }
-        System.out.println("┐");
+        System.out.println("-");
     }
 }
